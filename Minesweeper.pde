@@ -1,6 +1,6 @@
 import de.bezier.guido.*;
-private final static int NUM_ROWS = 5;
-private final static int NUM_COLS = 5;
+private final static int NUM_ROWS = 10;
+private final static int NUM_COLS = 10;
 private MSButton[][] buttons; //2d array of minesweeper buttons
 private ArrayList <MSButton> mines = new ArrayList <MSButton>(); //ArrayList of just the minesweeper buttons that are mined
 
@@ -26,10 +26,14 @@ void setup ()
 }
 public void setMines()
 {
-    int r = (int)(Math.random()*NUM_ROWS);
-    int c = (int)(Math.random()*NUM_COLS);
-    if(!mines.contains(buttons[r][c])){
-      mines.add(buttons[r][c]);
+
+    for(int i = 0; i < 5; i++){
+          int r = (int)(Math.random()*NUM_ROWS);
+          int c = (int)(Math.random()*NUM_COLS);
+          if(!mines.contains(buttons[r][c])){
+              mines.add(buttons[r][c]);
+           }
+           else i--;
     }
 }
 
@@ -54,14 +58,22 @@ public void displayWinningMessage()
 }
 public boolean isValid(int r, int c)
 {
-    //your code here
-    return false;
+  if(r >= 0 && r <= NUM_ROWS && c >= 0 && c <= NUM_COLS){
+    return true;
+  }
+  else return false;
 }
 public int countMines(int row, int col)
 {
     int numMines = 0;
-    //your code here
-    return numMines;
+      for(int i = row-1 ; i <= row+1; i++){
+    for(int j = col-1; j <= col+1; j++){
+      if(isValid(i, j) == true && mines.contains(buttons[i][j]) && (row != i|| col != j)){
+        numMines++;
+      }
+    }
+  }
+  return numMines;
 }
 public class MSButton
 {
@@ -86,9 +98,32 @@ public class MSButton
     // called by manager
     public void mousePressed () 
     {
+      if(clicked == true){
+        return;
+      }
         clicked = true;
-        //your code here
-    }
+       if(mouseButton == RIGHT){
+         flagged = !flagged;
+         if(flagged == false){
+           clicked = false;
+         }
+       }
+       else if(mines.contains(this)){
+         displayLosingMessage();
+       }
+       else if(countMines(myRow, myCol) > 0){
+         setLabel(countMines(myRow, myCol));
+       }
+       else{
+          for(int i = myRow-1 ; i <= myRow+1; i++){
+            for(int j = myCol-1; j <= myCol+1; j++){
+              if(isValid(i, j) == true || clicked == false){
+                buttons[i][j].mousePressed();
+               }    
+            }
+        }
+       }
+      }
     public void draw () 
     {    
         if (flagged)
